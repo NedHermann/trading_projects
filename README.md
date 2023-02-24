@@ -5,5 +5,4 @@ Created this repository mostly for the [PredictingAlpha](https://predictingalpha
   ### RECREATED PROJECTS:
 - Constructing a Portfolio and Improving Your Sharpe Ratio
   - Inspiration: Academy - Gold 2.7
-  - Markdown: N/A
   - Code: [src/portfolio_optimization](src/portfolio_optimization)
