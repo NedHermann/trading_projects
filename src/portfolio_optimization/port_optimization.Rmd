@@ -1,16 +1,13 @@
 ---
 title: "Recreating Predicting Alpha Gold 2.7"
+author: Ned Hermann
 ---
-
-**Loading Libraries**
 
 ```{r}
 library(tidyverse)
 library(quantmod)
 library(PortfolioAnalytics)
 ```
-
-**Setting Variables**
 
 ```{r}
 set.seed(123)
@@ -19,8 +16,6 @@ tickers <- c("XLP", "XLU", "GLD", "SLV", "USDCAD=X", "USDAUD=X")
 date_from <- as.Date("2007-01-03")
 date_to <- as.Date("2020-11-19")
 ```
-
-**Pulling Price Data & Calculating Returns**
 
 ```{r}
 ticker_list <- lapply(1:length(tickers), function(x){
@@ -46,8 +41,6 @@ return_tbl <- reduce(ticker_list, full_join, by = "Date") %>%
 return_tbl <- as.zoo(return_tbl[,!names(return_tbl) %in% "Date"], order.by = return_tbl$Date)
 ```
 
-**Building Portfolios**
-
 ```{r}
 port <- NULL
 
@@ -62,13 +55,9 @@ optimized_port <- optimize.portfolio(R = return_tbl, portfolio = port, optimize_
 optimized_port
 ```
 
-**Charting Optimized Portfolio Weights**
-
 ```{r}
 chart.Weights(optimized_port)
 ```
-
-**Re-balance Portfolio & Chart Moving Weights**
 
 ```{r}
 rebalanced_port <- optimize.portfolio.rebalancing(
@@ -83,8 +72,6 @@ rebalanced_port <- optimize.portfolio.rebalancing(
 chart.Weights(rebalanced_port)
 ```
 
-**Performance Summary: Re-balanced Portfolio & Equal-Weighted Portfolio**
-
 ```{r, fig.width=12}
 rebalanced_returns <- Return.portfolio(R = return_tbl, extractWeights(rebalanced_port))
 names(rebalanced_returns) <- "Strategy"
@@ -96,3 +83,8 @@ port_comp <- na.omit(cbind(rebalanced_returns, benchmark))
 
 charts.PerformanceSummary(port_comp, main = "Performance", geometric = TRUE)
 ```
+
+```{r}
+table.AnnualizedReturns(port_comp)
+```
+
