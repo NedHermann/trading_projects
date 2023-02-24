@@ -55,11 +55,11 @@ optimized_port <- optimize.portfolio(R = return_tbl, portfolio = port, optimize_
 optimized_port
 ```
 
-```{r}
+```{r, fig.width=12}
 chart.Weights(optimized_port)
 ```
 
-```{r}
+```{r, fig.width=12}
 rebalanced_port <- optimize.portfolio.rebalancing(
   R = return_tbl,
   portfolio = port,
