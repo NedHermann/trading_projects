@@ -1,0 +1,144 @@
+---
+title: "Earnings Announcement Forecast"
+author: Ned Hermann
+---
+
+```{r echo=FALSE}
+source("utils.R")
+```
+
+```{r}
+# need to download firefox + java
+rs_driver_obj <- rsDriver(
+  browser = "firefox",
+  chromever = NULL,
+  verbose = FALSE,
+  port = free_port())
+
+rs_client <- rs_driver_obj$client
+```
+
+```{r}
+rs_client$navigate("https://www.nasdaq.com/market-activity/stocks/pdd/press-releases")
+
+pages <- rs_client$findElements("css selector", "button.pagination__page")
+
+max_page <- lapply(1:length(pages), function(x){
+  as.numeric(pages[[x]]$getElementText())
+}) %>%
+  unlist(.) %>%
+  max(.)
+```
+
+```{r}
+tbl <- list()
+
+for(x in 1:max_page){
+  
+  if(x > 1){
+    rs_client$findElement("css selector", "button.pagination__next")$clickElement()
+  }
+  
+  page_source <- rs_client$getPageSource()[[1]]
+  
+  timestamp <- read_html(page_source) %>%
+    html_nodes("div.quote-press-release__card-timestamp") %>%
+    html_text() %>%
+    mdy()
+  
+  title <- read_html(page_source) %>%
+    html_nodes("a.quote-press-release__link") %>%
+    html_text()
+  
+  tbl[[x]] <- data.frame(
+    announced = timestamp[c(TRUE, FALSE)],
+    title = title,
+    row.names = NULL)
+}
+
+pdd_earnings_dates <- bind_rows(tbl) %>%
+  filter(str_detect(str_squish(title), "Financial Results on ")) %>%
+  mutate(earnings = mdy(str_split_i(str_squish(title), "Financial Results on ", 2))) %>%
+  distinct(announced, earnings, .keep_all = TRUE)
+
+pdd_earnings_dates
+# write_csv(head(pdd_earnings_dates, 5), "data/pdd_er_dates_sample.csv")
+# write_csv(pdd_earnings_dates, "data/pdd_earnings_dates.csv")
+```
+
+```{r}
+earnings_forecast <- pdd_earnings_dates %>%
+  select(announced, earnings) %>%
+  arrange(earnings) %>%
+  mutate(weekday = weekdays(earnings),
+         quarter = quarter(earnings),
+         week = week(earnings),
+         ern2ern_diff = as.numeric(earnings - lag(earnings)),
+         an2ern_diff = as.numeric(earnings - announced),
+         wk2wk_diff = abs(week - lag(week))) %>%
+  arrange(desc(earnings)) 
+
+earnings_forecast
+```
+
+```{r}
+pdd_data <- fromJSON("https://cdn.cboe.com/api/global/delayed_quotes/options/PDD.json")
+
+opt_chain <- pdd_data$data$options %>%
+  select(option, iv, delta) %>%
+  mutate(expiry = ymd(str_sub(option, -15, -10)),
+         dte = as.numeric(expiry - as.Date(pdd_data$timestamp)),
+         type = ifelse(str_sub(option, -9, -9) == "C", "call", "put"),
+         strike = str_sub(option, -8, -1),
+         strike = as.numeric(paste(str_sub(strike, -8, -4), str_sub(strike, -3, -1), sep = "."))) %>%
+  filter(type == "call") %>%
+  group_by(expiry) %>%
+  filter(abs(delta-0.5) == min(abs(delta-0.5))) %>%
+  select(expiry, type, dte, strike, iv, delta) %>%
+  ungroup()
+
+opt_chain
+# write_csv(head(opt_chain, 5), "data/opt_chain_sample.csv")
+# write_csv(opt_chain, "data/opt_chain.csv")
+```
+
+```{r}
+event_tbl <- opt_chain %>%
+  arrange(expiry) %>%
+  filter(dte-lag(dte) <= 7) %>%
+  mutate(nonevent_vol = 0.5420,
+         event_vol = event_vol(nonevent_vol, iv, dte),
+         event_move = event_move(event_vol),
+         across(event_vol:event_move, function(x) round(x, 4)))
+
+event_tbl
+```
+
+```{r}
+benchmark <- earnings_forecast %>%
+  filter(quarter == 1) %>%
+  select(earnings, week, wk2wk_diff, ern2ern_diff) %>%
+  pivot_longer(week:ern2ern_diff) %>%
+  group_by(name) %>%
+  summarise(min = min(value, na.rm = TRUE),
+            avg = round(mean(value, na.rm = TRUE)),
+            max = max(value, na.rm = TRUE))
+
+final_tbl <- event_tbl %>%
+  select(expiry, event_move) %>%
+  filter(dplyr::between(expiry, as.Date("2023-03-17"), as.Date("2023-03-31"))) %>%
+  mutate(last_er = max(earnings_forecast$earnings),
+         week = week(expiry),
+         wk2wk_diff = abs(week - week(last_er)),
+         ern2ern_diff = as.numeric(expiry - last_er)) %>%
+  pivot_longer(week:ern2ern_diff) %>%
+  pivot_wider(id_cols = name, names_from = expiry, values_from = value) %>%
+  left_join(benchmark, by = "name")
+
+final_tbl
+# write_csv(final_tbl, "data/final_tbl.csv")
+```
+
+
+
+
