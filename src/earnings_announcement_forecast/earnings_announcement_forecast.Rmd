@@ -79,6 +79,7 @@ earnings_forecast <- pdd_earnings_dates %>%
   arrange(desc(earnings)) 
 
 earnings_forecast
+# write_csv(head(earnings_forecast, 5), "data/earnings_forecast_sample.csv")
 ```
 
 ```{r}
