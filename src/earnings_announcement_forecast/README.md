@@ -192,7 +192,7 @@ As we can see, the event_move increases up til the 24th and starts to taper off 
 |2023-04-06|call|41 |86    |0.6613|0.5084|0.5556      |2.3627   |0.0987    |
 
 ### Non-event and Event Volatility Explained
-The below figure is on page 179 from Trading Volatility. This chapter (6.4) illustrates how a person can trade the event jump by structuring across the term structure. The figure details how I got my nonevent_vol number by selecting the options that expire before the event (jump). This nonevent_vol is also referred to as the *diffusive* volatility. [Here](images/collin_fig_3.png) is the formula for how event_vol and event_move's are calculated (source code [@utils.R](utils.R).
+The below figure is on page 179 from Trading Volatility. This chapter (6.4) illustrates how a person can trade the event jump by structuring across the term structure. The figure details how I got my nonevent_vol number by selecting the options that expire before the event (jump). This nonevent_vol is also referred to as the *diffusive* volatility. [Here](images/collin_fig_3.png) is the formula for how event_vol and event_move's are calculated (source code [@utils.R](utils.R)).
 
 ![collin_fig_1](images/collin_fig_1.png)
 
@@ -230,3 +230,7 @@ Shifted the data to a long format which shows three possible future earnings ann
 |week      |11        |12        |13        |11    |11    |12    |
 |wk2wk_diff|37        |36        |35        |23    |32    |36    |
 |ern2ern_diff|109       |116       |123       |112   |145   |208   |
+
+
+### Remarks
+In the video, Jordan also showcases a forecast of the event's implied move and talks about trading this if the earnings announcement was known. Unfortunately, to create a forecast of the implied move I would need to model historical data - outside of the scope for this project.
