@@ -28,7 +28,7 @@ rs_client <- rs_driver_obj$client
 
 ### RSelenium cont.
 - Navigated to [$PDD's press release data from nasdaq](https://www.nasdaq.com/market-activity/stocks/pdd/press-releases).
-- The table is paginated. I scrape the maximum number of pages on the table (27).
+- The table is paginated. I scraped the maximum number of pages on the table (27).
 
 ```
 rs_client$navigate("https://www.nasdaq.com/market-activity/stocks/pdd/press-releases")
@@ -49,8 +49,8 @@ How the table looks:
 - Created an empty list called tbl to store each table page with a for loop. 
 - Binded the list to a data.frame.
 - Noticed in the earlier picture that the way $PDD announces their earnings are in a specific format that can be retrieved via the title alone. 
-  - Every earnings announcement also contained this phrase in the title: *Financial Results on earnings_date*.
-- Filtered the table for titles that contained this phrase and extracted the earnings announcement date to a separate column.
+  - Every earnings announcement also contained this phrase in the title: *Financial Results on {date}*.
+- Filtered the table for titles that contained this phrase and extracted the earnings announcement to a separate column.
 
 ```
 tbl <- list()
@@ -84,10 +84,10 @@ pdd_earnings_dates <- bind_rows(tbl) %>%
   distinct(announced, earnings, .keep_all = TRUE)
 ```
 
-Sample of the table:
+Sample of the table:  
 - announced: date of the press release announcing the earnings date
 - title: title of the press release
-- earnings: earnings announcement date that was extracted from the title
+- earnings: earnings announcement that was extracted from the title
 
 |announced            |title   |earnings                        |
 |---------------------|--------|--------------------------------|
@@ -99,7 +99,7 @@ Sample of the table:
 
 
 ### Earnings Announcement Analysis
-Followed the analysis example from the video to create an table of metrics.  
+Followed the analysis example from the video to create some metrics.
 
 ```
 earnings_forecast <- pdd_earnings_dates %>%
@@ -114,7 +114,7 @@ earnings_forecast <- pdd_earnings_dates %>%
   arrange(desc(earnings)) 
 ```
 
-Sample of the table:
+Sample of the table:  
 - week: week-of-the-year
 - ern2ern_diff: difference between earnings announcements (earnings)
 - an2ern_diff: difference between the press release (announced) and the earnings announcements
@@ -149,8 +149,8 @@ opt_chain <- pdd_data$data$options %>%
   ungroup()
   ```
   
-  Sample of the table:
-  Extracted & cleaned option data. Filtered for call options that were nearest to 0.50 delta at each expiration. Notice that there are weekly contracts.
+  Sample of the table:  
+  Extracted & cleaned option data. Filtered for call options that were nearest to 0.50 delta at each expiration. Noticed that there are weekly contracts.
   - dte: days-to-expiration
   - iv: implied volatility
   
@@ -176,7 +176,7 @@ event_tbl <- opt_chain %>%
          across(event_vol:event_move, function(x) round(x, 4)))
  ```
          
-Sample of the table:
+Sample of the table:  
 As we can see, the event_move increases up til the 24th and starts to taper off (gets more diluted with additional periods). The market thinks that the next earnings announcement will be within the 24th expiry.
 - nonevent_vol: *diffusive volatility (before jump)*, this number was picked from the 2023-03-10 iv because it's before the event.
 - event_vol: event volatility 
@@ -192,7 +192,7 @@ As we can see, the event_move increases up til the 24th and starts to taper off 
 |2023-04-06|call|41 |86    |0.6613|0.5084|0.5556      |2.3627   |0.0987    |
 
 ### Non-event and Event Volatility Explained
-The below figure is on page 179 from Trading Volatility. This chapter (6.4) illustrates how a person trades the event jump by structuring across the term structure. The figure details how I got my nonevent_vol number by selecting the options that expire before the event (jump). This nonevent_vol is also referred to as the *diffusive* volatility. [Here](images/collin_fig_3.png) is the formula for how event_vol and event_move's are calculated (source code [@utils.R](utils.R).
+The below figure is on page 179 from Trading Volatility. This chapter (6.4) illustrates how a person can trade the event jump by structuring across the term structure. The figure details how I got my nonevent_vol number by selecting the options that expire before the event (jump). This nonevent_vol is also referred to as the *diffusive* volatility. [Here](images/collin_fig_3.png) is the formula for how event_vol and event_move's are calculated (source code [@utils.R](utils.R).
 
 ![collin_fig_1](images/collin_fig_1.png)
 
@@ -222,8 +222,8 @@ final_tbl <- event_tbl %>%
   left_join(benchmark, by = "name")
 ```
 
-Final Table:
-Shifted the data to a long format which shows three possible future earnings announcements and benchmark metrics. Across the 2023-03-17, 2023-03-24, and 2023-03-31 expirations, the 24th expiration best fits the patterns we've observed in the past for earnings announcements within that quarter. This is the same view that the market has, so no trade.
+Final Table:  
+Shifted the data to a long format which shows three possible future earnings announcements and benchmark metrics. Across the 2023-03-17, 2023-03-24, and 2023-03-31 expirations, the 24th expiration best fits the patterns we've observed in the past for earnings announcements within the first quarter. This is the same view that the market has, so no trade.
 
 |name      |2023-03-17|2023-03-24|2023-03-31|min   |avg   |max   |
 |----------|----------|----------|----------|------|------|------|
