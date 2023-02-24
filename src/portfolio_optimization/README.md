@@ -18,6 +18,7 @@ I've also set the seed since some of the later portfolio options uses rng.
 
 ```
 set.seed(123)
+
 tickers <- c("XLP", "XLU", "GLD", "SLV", "USDCAD=X", "USDAUD=X")
 date_from <- as.Date("2007-01-03")
 date_to <- as.Date("2020-11-19")
@@ -43,11 +44,13 @@ ticker_list <- lapply(1:length(tickers), function(x){
   
   return(price_tbl)
 })
+
 return_tbl <- reduce(ticker_list, full_join, by = "Date") %>%
   arrange(Date) %>%
   drop_na() %>%
   mutate(across(where(is.numeric), function(x) ROC(x))) %>%
   drop_na() 
+  
 return_tbl <- as.zoo(return_tbl[,!names(return_tbl) %in% "Date"], order.by = return_tbl$Date)
 ```
 
@@ -62,6 +65,7 @@ port <- add.constraint(port, type = "weight_sum", min_sum = 0.95, max_sum = 1.05
 port <- add.constraint(port, type = "box", min = 0.02, max = 0.6)
 port <- add.objective(portfolio = port, type = "return", name = "mean")
 port <- add.objective(portfolio = port, type = "risk", name = "StdDev")
+
 optimized_port <- optimize.portfolio(R = return_tbl, portfolio = port, optimize_method = "random", trace = TRUE)
 ```
 ### optimized_port Object
@@ -90,6 +94,7 @@ rebalanced_port <- optimize.portfolio.rebalancing(
   rebalance_on = "quarters",
   training_period = 252,
   rolling_window = 252)
+  
 chart.Weights(rebalanced_port)
 ```
 
@@ -104,12 +109,27 @@ We took our rolling rebalanced portfolio and compared it's performance if the sa
 ```
 rebalanced_returns <- Return.portfolio(R = return_tbl, extractWeights(rebalanced_port))
 names(rebalanced_returns) <- "Strategy"
+
 benchmark <- Return.portfolio(R = return_tbl, weights = rep(1/ncol(return_tbl), ncol(return_tbl)))
 names(benchmark) <- "Equal Weight"
+
 port_comp <- na.omit(cbind(rebalanced_returns, benchmark))
 charts.PerformanceSummary(port_comp, main = "Performance", geometric = TRUE)
 ```
 
-## Performance Chart
+### Performance Chart
 
 ![port_comp](images/port_comp.png)
+
+### Portfolio Analytics
+As seen in the video, the Sharpe Ratio of the rolling rebalanced portfolio is almost doubled the equally-weighted one. All-in-all, the numbers are slightly different from the video because I do not know the seed they used for their rng functions.
+
+```
+table.AnnualizedReturns(port_comp)
+```
+
+|                           | Strategy | Equal Weight |
+|---------------------------|----------|--------------|
+| Annualized Return         | 0.0344   | 0.0374       |
+| Annualized Std Dev        | 0.0652   | 0.1101       |
+| Annualized Sharpe (Rf=0%) | 0.5275   | 0.3399       |
