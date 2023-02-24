@@ -14,7 +14,7 @@ library(PortfolioAnalytics)
 tickers: a character vector of the same tickers from the video  
 date_from: beginning of the date value range from the video  
 date_to: ending of the date value range from the video   
-I've also set the seed since some of the later portfolio options uses rng's.
+I've also set the seed since some of the later portfolio options uses rng.
 
 ```
 set.seed(123)
@@ -24,7 +24,7 @@ date_to <- as.Date("2020-11-19")
 ```
 
 ### Pulling Price Data & Calculating Returns
-Initially I transformed the data to a data.frame to use the tidyverse toolkit for data manipulation. Later on, I realized that the table format required for PerformanceAnalytics functions are xts/zoo! I had to change it back, lol.
+Initially, I transformed the data to a data.frame to use the tidyverse toolkit for data manipulation. Later on, I realized that the table format required for PerformanceAnalytics functions are xts/zoo! I had to change it back, lol.
 - ticker_list: a list of data.frames that has each ticker's price data from yahoo
   - pulled adjusted prices and filtered for within the date range set previously
 - return_tbl: an xts/zoo table that has each ticker's log rate-of-change
@@ -52,7 +52,7 @@ return_tbl <- as.zoo(return_tbl[,!names(return_tbl) %in% "Date"], order.by = ret
 ```
 
 ### Building Portfolio
-In the video, they changed the code a few times to adjust for a long and short/long portfolios. This recreation will only have the long portfolio.  
+In the video, they changed the code a few times to adjust for a long and short/long portfolios. This recreation will only have the *long portfolio*.  
 I am not familiar with the PortfolioAnalytics functions so from here-on, I did a lot of copying from the video. Jordan does a good job in the video explaining the meaning of each function and how it ties together with optimizing a portfolio. 
 
 ```
@@ -64,16 +64,22 @@ port <- add.objective(portfolio = port, type = "return", name = "mean")
 port <- add.objective(portfolio = port, type = "risk", name = "StdDev")
 optimized_port <- optimize.portfolio(R = return_tbl, portfolio = port, optimize_method = "random", trace = TRUE)
 ```
-### optimized_port Results 
+### optimized_port Object
+- Call: function used
+- Weights: the weights of each ticker in the optimized_port
+- Objective Measures: the mean and standard deviation of the portfolio's returns
 
-![optimized_port](https://i.gyazo.com/8d0e8aeef57047f8dea6ac5c9a8cccde.png)
+![optimized_port_tbl](images/optimized_port_tbl.png)
 
 ### Charting Optimized Portfolio Weights
+- The series with the triangle markers that bounds the data are the constraints we put on the weight of a ticker
+- The blue series is the optimized weight of each ticker
+- Unsure about the orange series but it has a close value to the weight's average (0.184)
 
+![optimized_port](images/optimized_port.png)
 
-
-
-**Re-balance Portfolio & Chart Moving Weights**
+### Rebalance Portfolio Through Time
+As explained in the video, this is a rolling rebalancing of the weights of the tickers throughout time. 
 
 ```
 rebalanced_port <- optimize.portfolio.rebalancing(
@@ -87,7 +93,13 @@ rebalanced_port <- optimize.portfolio.rebalancing(
 chart.Weights(rebalanced_port)
 ```
 
-**Performance Summary: Re-balanced Portfolio & Equal-Weighted Portfolio**
+### Chart Moving Weights
+Displays how the weights of each ticker changes throughout time.
+
+![rebalanced_port](images/rebalanced_port.png)
+
+### Performance Summary: Rebalanced Portfolio vs Equal-Weighted Portfolio
+We took our rolling rebalanced portfolio and compared it's performance if the same tickers were equally weighted.
 
 ```
 rebalanced_returns <- Return.portfolio(R = return_tbl, extractWeights(rebalanced_port))
@@ -97,3 +109,7 @@ names(benchmark) <- "Equal Weight"
 port_comp <- na.omit(cbind(rebalanced_returns, benchmark))
 charts.PerformanceSummary(port_comp, main = "Performance", geometric = TRUE)
 ```
+
+## Performance Chart
+
+![port_comp](images/port_comp.png)
