@@ -170,7 +170,7 @@ Filtered for nearer expirations. The calculations for this table can be read at 
 event_tbl <- opt_chain %>%
   arrange(expiry) %>%
   filter(dte-lag(dte) <= 7) %>%
-  mutate(nonevent_vol = 0.5420,
+  mutate(nonevent_vol = 0.5556,
          event_vol = event_vol(nonevent_vol, iv, dte),
          event_move = event_move(event_vol),
          across(event_vol:event_move, function(x) round(x, 4)))
