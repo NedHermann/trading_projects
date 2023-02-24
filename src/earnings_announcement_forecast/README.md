@@ -43,7 +43,7 @@ max_page <- lapply(1:length(pages), function(x){
 
 How the table looks:
 
-![pdd_press_release_tbl](images/pdd_press_releease.png)
+![pdd_press_release_tbl](images/pdd_press_release.png)
 
 ### RSelenium cont.
 - Created an empty list called tbl to store each table page with a for loop. 
