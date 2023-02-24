@@ -222,7 +222,7 @@ final_tbl <- event_tbl %>%
   left_join(benchmark, by = "name")
 ```
 
-Final Table:  
+### Final Table
 Shifted the data to a long format which shows three possible future earnings announcements and benchmark metrics. Across the 2023-03-17, 2023-03-24, and 2023-03-31 expirations, the 24th expiration best fits the patterns we've observed in the past for earnings announcements within the first quarter. This is the same view that the market has, so no trade.
 
 |name      |2023-03-17|2023-03-24|2023-03-31|min   |avg   |max   |
