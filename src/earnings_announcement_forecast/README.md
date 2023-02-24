@@ -233,4 +233,4 @@ Shifted the data to a long format which shows three possible future earnings ann
 
 
 ### Remarks
-In the video, Jordan showcases a forecast of the event's implied move and talks about trading this if the earnings announcement was confirmed. Unfortunately, to create a forecast of the implied move I would need to model historical data. I decided this kind of data would be outside of the scope for this project and excluded it.
+In the video, Jordan showcases a forecast of the event's implied move and talked about trading this if the earnings announcement was confirmed. Unfortunately, to create a forecast of the implied move I would need to model historical data. I decided this kind of data would be outside of the scope for this project and excluded it.
