@@ -197,7 +197,7 @@ The below figure is on page 179 from Trading Volatility. This chapter (6.4) illu
 ![collin_fig_1](images/collin_fig_1.png)
 
 ### Analyzing Future Expirations 
-With the earnings forecast table we created a few sections ago, I filtered for the upcoming quarter (1) and created a benchmark that calculates the min, avg, and max values of the week, wk2wk_diff, and ern2ern_diff.  
+With the earnings forecast table we created a [few sections ago](#earnings-announcement-analysis), I filtered for the upcoming quarter (1) and created a benchmark that calculates the min, avg, and max values of the week, wk2wk_diff, and ern2ern_diff.  
 Joined this benchmark table with the event_tbl of possible earnings announcements in the future to detect any patterns.
 
 ```
