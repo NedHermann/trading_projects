@@ -98,7 +98,7 @@ opt_chain <- pdd_data$data$options %>%
   select(expiry, type, dte, strike, iv, delta) %>%
   ungroup()
 
-opt_chain
+opt_chain 
 # write_csv(head(opt_chain, 5), "data/opt_chain_sample.csv")
 # write_csv(opt_chain, "data/opt_chain.csv")
 ```
@@ -123,8 +123,10 @@ benchmark <- earnings_forecast %>%
   pivot_longer(week:ern2ern_diff) %>%
   group_by(name) %>%
   summarise(min = min(value, na.rm = TRUE),
-            avg = round(mean(value, na.rm = TRUE)),
-            max = max(value, na.rm = TRUE))
+            median = median(value, na.rm = TRUE),
+            mode = which.max(tabulate(value)),
+            max = max(value, na.rm = TRUE),
+            avg = round(mean(value, na.rm = TRUE)))
 
 final_tbl <- event_tbl %>%
   select(expiry, event_move) %>%
