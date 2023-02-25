@@ -197,7 +197,7 @@ The below figure is on page 179 from Trading Volatility. This chapter (6.4) illu
 ![collin_fig_1](images/collin_fig_1.png)
 
 ### Analyzing Future Expirations 
-With the earnings forecast table we created a [few sections ago](#earnings-announcement-analysis), I filtered for the upcoming quarter (1) and created a benchmark that calculates the min, avg, and max values of the week, wk2wk_diff, and ern2ern_diff.  
+With the earnings forecast table we created a [few sections ago](#earnings-announcement-analysis), I filtered for the upcoming quarter (1) and created a benchmark that calculates the min, median, mode, max, and avg values of the week, wk2wk_diff, and ern2ern_diff.  
 Joined this benchmark table with the [event_tbl](#event-table) of possible earnings announcements in the future to detect any patterns.
 
 ```
@@ -207,8 +207,10 @@ benchmark <- earnings_forecast %>%
   pivot_longer(week:ern2ern_diff) %>%
   group_by(name) %>%
   summarise(min = min(value, na.rm = TRUE),
-            avg = round(mean(value, na.rm = TRUE)),
-            max = max(value, na.rm = TRUE))
+            median = median(value, na.rm = TRUE),
+            mode = which.max(tabulate(value)),
+            max = max(value, na.rm = TRUE),
+            avg = round(mean(value, na.rm = TRUE)))
             
 final_tbl <- event_tbl %>%
   select(expiry, event_move) %>%
@@ -225,11 +227,11 @@ final_tbl <- event_tbl %>%
 ### Final Table
 Shifted the data to a long format which shows three possible future earnings announcements and benchmark metrics. Across the 2023-03-17, 2023-03-24, and 2023-03-31 expirations, the 24th expiration best fits the patterns we've observed in the past for earnings announcements within the first quarter. This is the same view that the market has, so no trade.
 
-|name      |2023-03-17|2023-03-24|2023-03-31|min   |avg   |max   |
-|----------|----------|----------|----------|------|------|------|
-|week      |11        |12        |13        |11    |11    |12    |
-|wk2wk_diff|37        |36        |35        |23    |32    |36    |
-|ern2ern_diff|109       |116       |123       |112   |145   |208   |
+|name        |2023-03-17|2023-03-24|2023-03-31|min|median|mode|max|avg|
+|------------|----------|----------|----------|---|------|----|---|---|
+|week        |11        |12        |13        |11 |11    |11  |12 |11 |
+|wk2wk_diff  |37        |36        |35        |23 |36    |36  |36 |32 |
+|ern2ern_diff|109       |116       |123       |112|115   |112 |208|145|
 
 
 ### Remarks
