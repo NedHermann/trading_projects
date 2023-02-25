@@ -1,4 +1,4 @@
-## PORTFOLIO OPTIMIZATION PROJECT
+## PORTFOLIO OPTIMIZATION
 
 This is a recreation of the demonstration from the Academy, Gold 2.7 - *Constructing a Portfolio and Improving Your Sharpe Ratio*.
 
