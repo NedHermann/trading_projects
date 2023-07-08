@@ -164,7 +164,7 @@ opt_chain <- pdd_data$data$options %>%
 
 
 ### Event Table
-Filtered for nearer expirations. The calculations for this table can be read at [Trading Volatility by Collin Bennet](https://www.trading-volatility.com/Trading-Volatility.pdf).  
+Filtered for nearer expirations. The calculations for this table can be read at [Trading Volatility by Colin Bennett](https://www.trading-volatility.com/Trading-Volatility.pdf).  
 
 ```
 event_tbl <- opt_chain %>%
