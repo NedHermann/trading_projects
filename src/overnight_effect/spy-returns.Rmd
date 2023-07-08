@@ -61,4 +61,9 @@ spy_returns %>%
        y = "spy returns (%)")
 ```
 
+# save data 
+
+```{r}
+# write_csv(spy_returns, "data/spy_returns.csv")
+```
 
